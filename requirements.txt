@@ -1,0 +1,14 @@
+
+fastapi
+uvicorn[standard]
+python-dotenv
+openai
+numpy
+faiss-cpu
+rank-bm25
+sentence-transformers
+PyJWT
+pydantic
+mcp
+pytest
+httpx

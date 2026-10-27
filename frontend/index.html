@@ -1,0 +1,525 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enterprise AI Operations Platform</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f7fb;
+      color: #1e293b;
+    }
+
+    header {
+      background: #172554;
+      color: white;
+      padding: 22px 7%;
+    }
+
+    header h1 {
+      margin: 0 0 7px;
+      font-size: 24px;
+    }
+
+    header p {
+      margin: 0;
+      color: #cbd5e1;
+      font-size: 14px;
+    }
+
+    .container {
+      max-width: 1050px;
+      margin: 25px auto;
+      padding: 0 18px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 22px;
+      margin-bottom: 20px;
+      box-shadow: 0 3px 14px #0f172a0c;
+      border: 1px solid #e2e8f0;
+    }
+
+    h2 {
+      margin-top: 0;
+      font-size: 19px;
+    }
+
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: bold;
+      margin: 14px 0 7px;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 7px;
+      font: inherit;
+    }
+
+    textarea {
+      min-height: 105px;
+      resize: vertical;
+    }
+
+    button {
+      border: 0;
+      border-radius: 7px;
+      padding: 11px 17px;
+      background: #2563eb;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+      margin-top: 12px;
+    }
+
+    button:hover {
+      background: #1d4ed8;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: wait;
+    }
+
+    .secondary {
+      background: #475569;
+    }
+
+    .danger {
+      background: #b91c1c;
+    }
+
+    .status {
+      margin-top: 12px;
+      font-size: 14px;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .success {
+      color: #15803d;
+    }
+
+    .error {
+      color: #b91c1c;
+    }
+
+    .muted {
+      color: #64748b;
+      font-size: 13px;
+    }
+
+    .answer {
+      white-space: pre-wrap;
+      line-height: 1.7;
+      overflow-wrap: anywhere;
+    }
+
+    .citation {
+      border-left: 3px solid #2563eb;
+      background: #f8fafc;
+      padding: 10px 12px;
+      margin-top: 9px;
+      font-size: 14px;
+      overflow-wrap: anywhere;
+    }
+
+    .top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      display: inline-block;
+      background: #e0f2fe;
+      color: #075985;
+      padding: 6px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+    }
+
+    footer {
+      text-align: center;
+      color: #64748b;
+      font-size: 12px;
+      padding: 20px;
+    }
+
+    @media (max-width: 600px) {
+      header {
+        padding: 20px;
+      }
+
+      .card {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Enterprise AI Operations Platform</h1>
+    <p>Secure document search, AI answers and knowledge management</p>
+  </header>
+
+  <main class="container">
+
+    <!-- API connection -->
+    <section class="card">
+      <div class="top-row">
+        <h2>API Connection</h2>
+        <span id="apiBadge" class="badge">Checking API...</span>
+      </div>
+
+      <label for="apiUrl">FastAPI Base URL</label>
+      <input
+        id="apiUrl"
+        type="url"
+        value="http://127.0.0.1:8000"
+        placeholder="http://127.0.0.1:8000"
+      >
+
+      <button id="healthBtn" class="secondary">
+        Check API
+      </button>
+
+      <div id="healthStatus" class="status muted">
+        Check whether the backend is running.
+      </div>
+    </section>
+
+    <!-- Authentication -->
+    <section class="card">
+      <h2>Authentication</h2>
+      <p class="muted">
+        Generate a JWT using your project's generate_token.py.
+        Paste the token below. Use an admin token for reindexing.
+      </p>
+
+      <label for="token">JWT Access Token</label>
+      <input
+        id="token"
+        type="password"
+        placeholder="Paste your JWT token here"
+        autocomplete="off"
+      >
+
+      <button id="saveTokenBtn">Use Token</button>
+      <button id="clearTokenBtn" class="secondary">Clear Token</button>
+
+      <div id="authStatus" class="status muted">
+        No token entered.
+      </div>
+    </section>
+
+    <!-- Ask AI -->
+    <section class="card">
+      <h2>Ask Your Documents</h2>
+      <p class="muted">
+        Ask a question about your indexed policies, contracts,
+        production access or incident procedures.
+      </p>
+
+      <label for="question">Your Question</label>
+      <textarea
+        id="question"
+        placeholder="Example: What should I do before testing a security vulnerability?"
+      ></textarea>
+
+      <button id="askBtn">Ask AI</button>
+
+      <div id="askStatus" class="status"></div>
+
+      <div id="answerPanel" hidden>
+        <hr style="border:0;border-top:1px solid #e2e8f0;margin:22px 0">
+
+        <h2>AI Answer</h2>
+        <div id="answer" class="answer"></div>
+
+        <h2 style="margin-top:22px">Sources and Citations</h2>
+        <div id="citations"></div>
+
+        <p id="traceInfo" class="muted"></p>
+      </div>
+    </section>
+
+    <!-- Admin -->
+    <section class="card">
+      <h2>Document Administration</h2>
+      <p class="muted">
+        Rebuild the document index after adding or updating documents.
+        This action requires a valid admin token.
+      </p>
+
+      <button id="reindexBtn" class="danger">
+        Reindex Documents
+      </button>
+
+      <div id="reindexStatus" class="status"></div>
+    </section>
+
+  </main>
+
+  <footer>
+    Enterprise AI Operations Platform · FastAPI Frontend
+  </footer>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    let accessToken = "";
+
+    function baseUrl() {
+      return $("apiUrl").value.trim().replace(/\/+$/, "");
+    }
+
+    function setStatus(id, message, type = "") {
+      const element = $(id);
+      element.textContent = message;
+      element.className = "status " + type;
+    }
+
+    function getHeaders() {
+      const headers = {
+        "Content-Type": "application/json"
+      };
+
+      if (accessToken) {
+        headers["Authorization"] = "Bearer " + accessToken;
+      }
+
+      return headers;
+    }
+
+    async function apiRequest(path, options = {}) {
+      const response = await fetch(baseUrl() + path, {
+        ...options,
+        headers: {
+          ...getHeaders(),
+          ...(options.headers || {})
+        }
+      });
+
+      const text = await response.text();
+      let data;
+
+      try {
+        data = text ? JSON.parse(text) : {};
+      } catch {
+        data = { detail: text || "Unexpected server response." };
+      }
+
+      if (!response.ok) {
+        let message = data.detail || data.message ||
+          ("HTTP " + response.status);
+
+        if (Array.isArray(message)) {
+          message = message.map(item =>
+            item.msg || JSON.stringify(item)
+          ).join("; ");
+        }
+
+        if (response.status === 401) {
+          message +=
+            "\nAuthentication failed. Check whether your JWT is valid and not expired.";
+        } else if (response.status === 403) {
+          message +=
+            "\nYour token may not have the required role. Reindexing normally requires an admin token.";
+        }
+
+        throw new Error(message);
+      }
+
+      return data;
+    }
+
+    function showApiError(id, error) {
+      setStatus(id, error.message || String(error), "error");
+    }
+
+    // Check backend availability
+    async function checkHealth() {
+      $("healthBtn").disabled = true;
+      $("apiBadge").textContent = "Checking...";
+
+      try {
+        const data = await apiRequest("/health", {
+          method: "GET",
+          headers: {}
+        });
+
+        $("apiBadge").textContent = "API Connected";
+        setStatus(
+          "healthStatus",
+          JSON.stringify(data, null, 2),
+          "success"
+        );
+      } catch (error) {
+        $("apiBadge").textContent = "API Unavailable";
+        showApiError("healthStatus", error);
+      } finally {
+        $("healthBtn").disabled = false;
+      }
+    }
+
+    // Store token only in this page's memory
+    $("saveTokenBtn").addEventListener("click", () => {
+      accessToken = $("token").value.trim().replace(/^Bearer\s+/i, "");
+
+      setStatus(
+        "authStatus",
+        accessToken
+          ? "Token loaded for this page session."
+          : "Please enter a JWT token.",
+        accessToken ? "success" : "error"
+      );
+    });
+
+    $("clearTokenBtn").addEventListener("click", () => {
+      accessToken = "";
+      $("token").value = "";
+      setStatus("authStatus", "Token cleared.", "success");
+    });
+
+    // Ask the RAG backend
+    $("askBtn").addEventListener("click", async () => {
+      const question = $("question").value.trim();
+
+      if (!accessToken) {
+        setStatus(
+          "askStatus",
+          "Please enter your JWT token and click Use Token first.",
+          "error"
+        );
+        return;
+      }
+
+      if (!question) {
+        setStatus("askStatus", "Please enter a question.", "error");
+        return;
+      }
+
+      $("askBtn").disabled = true;
+      $("answerPanel").hidden = true;
+      setStatus("askStatus", "Searching documents and generating an answer...");
+
+      try {
+        // Expected backend request: POST /ask with {"question": "..."}
+        const data = await apiRequest("/ask", {
+          method: "POST",
+          body: JSON.stringify({ question })
+        });
+
+        $("answer").textContent =
+          data.answer || data.response || data.message ||
+          "The API returned no answer text.";
+
+        $("citations").replaceChildren();
+
+        const sources = data.citations || data.sources || [];
+
+        if (Array.isArray(sources) && sources.length > 0) {
+          sources.forEach((source) => {
+            const item = document.createElement("div");
+            item.className = "citation";
+
+            if (typeof source === "string") {
+              item.textContent = source;
+            } else {
+              item.textContent = [
+                source.source || source.filename || source.file || "Source",
+                source.page != null ? "Page: " + source.page : "",
+                source.text || source.content || ""
+              ].filter(Boolean).join("\n");
+
+              if (!item.textContent.trim()) {
+                item.textContent = JSON.stringify(source, null, 2);
+              }
+            }
+
+            $("citations").appendChild(item);
+          });
+        } else {
+          $("citations").textContent =
+            "No citations were returned by the API.";
+        }
+
+        $("traceInfo").textContent = [
+          data.trace_id ? "Trace ID: " + data.trace_id : "",
+          data.latency_ms != null ? "Latency: " + data.latency_ms + " ms" : ""
+        ].filter(Boolean).join(" | ");
+
+        $("answerPanel").hidden = false;
+        setStatus("askStatus", "Answer received.", "success");
+      } catch (error) {
+        showApiError("askStatus", error);
+      } finally {
+        $("askBtn").disabled = false;
+      }
+    });
+
+    // Reindex documents
+    $("reindexBtn").addEventListener("click", async () => {
+      if (!accessToken) {
+        setStatus(
+          "reindexStatus",
+          "Enter your JWT token first. This endpoint requires an admin token.",
+          "error"
+        );
+        return;
+      }
+
+      const confirmed = window.confirm(
+        "Rebuild the document index now?"
+      );
+
+      if (!confirmed) return;
+
+      $("reindexBtn").disabled = true;
+      setStatus("reindexStatus", "Reindexing documents...");
+
+      try {
+        // Expected backend route: POST /admin/reindex
+        const data = await apiRequest("/admin/reindex", {
+          method: "POST",
+          body: JSON.stringify({})
+        });
+
+        setStatus(
+          "reindexStatus",
+          "Reindex request completed:\n" +
+            JSON.stringify(data, null, 2),
+          "success"
+        );
+      } catch (error) {
+        showApiError("reindexStatus", error);
+      } finally {
+        $("reindexBtn").disabled = false;
+      }
+    });
+
+    $("healthBtn").addEventListener("click", checkHealth);
+
+    // Initial API status check
+    checkHealth();
+  </script>
+</body>
+</html>

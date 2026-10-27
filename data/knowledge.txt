@@ -1,0 +1,8 @@
+Production Access Policy:
+Users must have approved access before entering production systems.
+Access incidents must be recorded and investigated.
+
+Incident Response Procedure:
+The support team should identify the issue, check logs,
+determine the root cause, and document the permanent fix.
+Security-sensitive changes require authorization.
